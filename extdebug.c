@@ -97,7 +97,7 @@ int Fault_Msg_Query(int Test_Result, char *buf, char *msg) {
     uint j=1;
 
     if (Test_Result == 0)
-        return( FALSE );
+        return FALSE;
     i = 0;
     if (fault_query_ndx > 15)
         fault_query_ndx = 0;

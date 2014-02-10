@@ -120,18 +120,10 @@ void parse_suppl_timing(uint8_t *RxBuf) {
 #define NUM_DISPLAY_MODES		6
 
     static int b = FALSE;
-    static int c = FALSE;
 
     FLOATType temp;
-    int val;
-    uint fval;
-    //char dac;
-    //char tempbuf[17];
-    static char mode = -1;
-
-    char lcdbuf[256];
-    memset(lcdbuf, 0, 256);
-
+    FLOATType dac;
+    LONGType holdover_duration;
 
 #ifdef TEST_EXTDEBUG
     if( Alarms.u == 0 )
@@ -151,90 +143,53 @@ void parse_suppl_timing(uint8_t *RxBuf) {
     Alarms.b.lo |= RxBuf[9];
 #endif
 
-    c = !c;  // only change display every 2nd time thru ( about every 2 seconds)
-    if( c )
-        return;
-
-    if( Alarms.u != 0 && mode == NUM_DISPLAY_MODES - 1 ){
-        b = Fault_Msg_Query(Alarms.u, lcdbuf, ALARM_MSG[0]);
-        if( b )
-            printf("%s\n", lcdbuf);
-        if( RxBuf[9] != 0 ) // if critical alarm, keep showing it
+    if (Alarms.u != 0) {
+        char buf[256];
+        b = Fault_Msg_Query(Alarms.u, buf, ALARM_MSG[0]);
+        if (b) {
+            printf("%s\n", buf);
+        }
+        if (RxBuf[9] != 0) { // if critical alarm, keep showing it
             return;
+        }
     }
 
-    if( !b ){
-        if( ++mode >= NUM_DISPLAY_MODES )
-            mode = 0;
+    if (!b) {
 
-        val = 28;
-        fval = 10000;
-        switch( mode ){
-            case 0:	// disciplining mode
-                strcpy(lcdbuf, DiscMode[(unsigned)RxBuf[2]]);
-                break;
+        printf("%s\n", DiscMode[(unsigned)RxBuf[2]]);
+        printf("%s\n", DiscActivity[(unsigned)RxBuf[13]]);
+        printf("%s\n", RxMode[(unsigned)RxBuf[1]]);
+        printf("%s\n", GPSDecodeStatus[(unsigned)RxBuf[12]]);
 
-            case 1:	// Discipling Activity
-                strcpy(lcdbuf, DiscActivity[(unsigned)RxBuf[13]]);
-                break;
+        printf("SelfSurvey: %d%%\n", RxBuf[3]);
 
-            case 2:	// Receiver mode
-                strcpy(lcdbuf, RxMode[(unsigned)RxBuf[1]]);
-                break;
+        holdover_duration.b.hhi = RxBuf[4];
+        holdover_duration.b.hi  = RxBuf[5];
+        holdover_duration.b.lo  = RxBuf[6];
+        holdover_duration.b.llo = RxBuf[7];
+        printf("Holdover: %ds\n", holdover_duration.l);
 
-            case 3:	// GPS Decode Status
-                strcpy(lcdbuf, GPSDecodeStatus[(unsigned)RxBuf[12]]);
-                break;
+        // RxBuf[32-35] is temperature (float)
+        temp.b.hhi = RxBuf[32];
+        temp.b.hi  = RxBuf[33];
+        temp.b.lo  = RxBuf[34];
+        temp.b.llo = RxBuf[35];
 
-            case 4:	// RxBuf[32-35] is temperature (float)
-                val = 32;
-                fval = 100;
-                // intentionally falls through (no break)
+        printf("Temp: %f\n", temp.f);
 
-            case 5:	// RxBuf[28-31] is DAC Voltage (float)
-                temp.b.hhi = RxBuf[val];
-                temp.b.hi = RxBuf[val+1];
-                temp.b.lo = RxBuf[val+2];
-                temp.b.llo = RxBuf[val+3];
+        // RxBuf[28-31] is DAC Voltage (float)
+        dac.b.hhi = RxBuf[28];
+        dac.b.hi  = RxBuf[29];
+        dac.b.lo  = RxBuf[30];
+        dac.b.llo = RxBuf[31];
 
-                val = temp.f;
-                fval = ((temp.f - val) * fval);
-
-                // ***TEST
-                //val = 249;
-                //fval = 209;
-                //
-                const char prompt[2][9]={
-                    "TEMP:  ",
-                    "DAC V: "
-                };
-
-                strcpy( lcdbuf, prompt[mode-4] );
-                UnsignedToAscii( val, lcdbuf+6, 3 );
-                lcdbuf[9] = '.';
-                UnsignedToAscii( fval, lcdbuf+10, 2 + 2*(mode-4) );
-                // unblank leading zeros on fractional part
-                for( val=0; val<3; val++ ){
-                    if( lcdbuf[10+val] == ' ' ) 
-                        lcdbuf[10+val] = '0';
-                    else
-                        break;
-                }
-                break;
-
-        } // switch( mode )
-        printf("%s\n", lcdbuf);
+        printf("DAC V: %f\n\n", dac.f);
     }
 
 }
 
 void message_received(uint8_t* rx_buffer, int rx_count)
 {
-    /*
-    for (int i = 0; i <= rx_count; i++) {
-        printf("%x ", rx_buffer[i]);
-    }*/
-
     int id = rx_buffer[IO_BUF_ID_INDEX];
     int id2 = rx_buffer[IO_BUF_ID2_INDEX];
 

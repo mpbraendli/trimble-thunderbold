@@ -163,6 +163,8 @@
 * 00 00 00 00 00 00 00 01 
 *==============================================================================*/
 
+#include <stdint.h>
+
 #define NUM_MODES		17
 //#define MSG_LEN	18
 
@@ -253,6 +255,7 @@ char DiscActivity[9][MSG_LEN] = {
 
 /* ----- typedef and union used to convert byte to uint or int ----- */
 typedef union int_t INTType;
+typedef union int_t UINTType;
 
 union int_t {
 	int i;
@@ -263,21 +266,13 @@ union int_t {
 	}b;
 };
 
-typedef union uint_t UINTType;
 
-union uint_t {
-	unsigned int u;
-	int i;
-	struct {
-		uchar lo;
-		uchar hi;
-	}b;
-};
+typedef union long_t FLOATType;
+typedef union long_t LONGType;
 
-typedef union float_t FLOATType;
-
-union float_t {
+union long_t {
 	float f;
+    uint32_t l;
 	struct {
 		uchar llo;
 		uchar lo;
