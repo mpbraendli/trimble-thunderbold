@@ -10,7 +10,7 @@
 *----------------------------------------------------------------------*/
 bit Fault_Msg_Query( 
 	uint Test_Result,
-	uchar TXRX_STORAGE_CLASS *buf,
+	uchar *buf,
 	uchar code *msg 
 );
 

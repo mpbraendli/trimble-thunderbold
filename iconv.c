@@ -61,7 +61,7 @@
  *     4) There are illegal characters.
  *
  *----------------------------------------------------------------------*/
-uchar AsciiToUnsigned( uchar TXRX_STORAGE_CLASS *p_ascii, 
+uchar AsciiToUnsigned( uchar *p_ascii, 
         uint *p_int ){
 
     uchar i = 0, n = 0;
@@ -100,7 +100,7 @@ uchar AsciiToUnsigned( uchar TXRX_STORAGE_CLASS *p_ascii,
  *   Puts result directly into pbuf
  *----------------------------------------------------------------------*/
 void UnsignedToAscii( uint value, 
-        uchar TXRX_STORAGE_CLASS *pbuf, 
+        uchar *pbuf, 
         uchar nbdigits ){
 
     char ndx;   // must be signed
@@ -139,7 +139,7 @@ void UnsignedToAscii( uint value,
 *   Puts result directly into pbuf
 *----------------------------------------------------------------------*/
 /*void LongToAscii( unsigned long value, 
-                        uchar TXRX_STORAGE_CLASS *pbuf, 
+                        uchar *pbuf, 
                         uchar nbdigits ){
 
     uchar i;
@@ -181,7 +181,7 @@ void UnsignedToAscii( uint value,
  *---------------------------------------------------------------------*/
 #if defined CHAR_TO_ASCII
 void CharToAscii( char value, 
-        uchar TXRX_STORAGE_CLASS *pbuf, 
+        uchar *pbuf, 
         uchar nbdigits ){
 
     uchar remainder, result;
@@ -239,7 +239,7 @@ void CharToAscii( char value,
  *----------------------------------------------------------------------*/
 /*
    void IntToAscii( int value, 
-   uchar TXRX_STORAGE_CLASS *pbuf, 
+   uchar *pbuf, 
    uchar nbdigits ){
 
    char ndx;
@@ -304,7 +304,7 @@ while( ndx >= 0 )
  *---------------------------------------------------------------------*/
 #if defined ASCII_TO_INT
 uchar AsciiToInt(
-        uchar TXRX_STORAGE_CLASS *p_ascii,
+        uchar *p_ascii,
         int *p_int ){
 
     uchar idata i = 0, n = 0, sign = 0, space_ok = TRUE;

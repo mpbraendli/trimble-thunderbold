@@ -192,13 +192,13 @@ enum {
 
 
 /* ===== TSIP stuff ===== */
-code uchar Month[]          = "JanFebMarAprMayJunJulAugSepOctNovDec";
+uchar Month[]          = "JanFebMarAprMayJunJulAugSepOctNovDec";
 // NUM_MODES is defined in TSIP.h
 // MSG_LEN  is defined in general.h
 
-code uchar DIM[]  = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+uchar DIM[]  = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-code uchar RxMode[8][MSG_LEN] = {
+uchar RxMode[8][MSG_LEN] = {
 	"RX: Auto 2D/3D",
 	"RX: Single Sat",
 	"RX: Unknown!!!",
@@ -209,7 +209,7 @@ code uchar RxMode[8][MSG_LEN] = {
 	"RX: Overdet Clk"	// Normal mode
 };
 
-code uchar DiscMode[7][MSG_LEN] = {
+uchar DiscMode[7][MSG_LEN] = {
 	"MODE: Normal",	// Normal mode
 	"MODE: Power-Up",
 	"MODE: Auto Hldvr",
@@ -219,7 +219,7 @@ code uchar DiscMode[7][MSG_LEN] = {
 	"MODE: Disabled"
 };
 
-code uchar GPSDecodeStatus[17][MSG_LEN] = {
+uchar GPSDecodeStatus[17][MSG_LEN] = {
 	"GPS: Doing Fixes", // Normal Mode
 	"GPS: No GPS Time",
 	"GPS: Unknown!!!",
@@ -239,7 +239,7 @@ code uchar GPSDecodeStatus[17][MSG_LEN] = {
 	"GPS: TRIAM Rejec" 
 };
 
-code uchar DiscActivity[9][MSG_LEN] = {
+uchar DiscActivity[9][MSG_LEN] = {
 	"ACT: Phase Lock",
 	"ACT: Osc Warmup",
 	"ACT: Freq Lock",

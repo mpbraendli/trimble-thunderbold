@@ -91,7 +91,7 @@ static uchar fault_query_ndx = 0;
  *   fault_query_index:  a static variable that points to the specific 
  *	bit being processed
  *----------------------------------------------------------------------*/
-int Fault_Msg_Query( uint Test_Result, uchar TXRX_STORAGE_CLASS *buf,
+int Fault_Msg_Query( uint Test_Result, uchar *buf,
         uchar code *msg ){
 
     uchar i;
