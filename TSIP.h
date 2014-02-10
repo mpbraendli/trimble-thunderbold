@@ -254,7 +254,7 @@ uchar DiscActivity[9][MSG_LEN] = {
 /* ----- typedef and union used to convert byte to uint or int ----- */
 typedef union int_t INTType;
 
-union int_t { 
+union int_t {
 	int i;
 	unsigned int u;
 	struct {
@@ -265,7 +265,7 @@ union int_t {
 
 typedef union uint_t UINTType;
 
-union uint_t { 
+union uint_t {
 	unsigned int u;
 	int i;
 	struct {
