@@ -13,7 +13,7 @@ int set_interface_attribs(int fd, int speed, int parity)
     memset (&tty, 0, sizeof tty);
     if (tcgetattr (fd, &tty) != 0)
     {
-        error_message ("error %d from tcgetattr", errno);
+        fprintf(stderr, "error %d from tcgetattr", errno);
         return -1;
     }
 
@@ -41,7 +41,7 @@ int set_interface_attribs(int fd, int speed, int parity)
 
     if (tcsetattr (fd, TCSANOW, &tty) != 0)
     {
-        error_message ("error %d from tcsetattr", errno);
+        fprintf(stderr, "error %d from tcsetattr", errno);
         return -1;
     }
     return 0;
@@ -53,7 +53,7 @@ void set_blocking(int fd, int should_block)
     memset (&tty, 0, sizeof tty);
     if (tcgetattr (fd, &tty) != 0)
     {
-        error_message ("error %d from tggetattr", errno);
+        fprintf(stderr, "error %d from tggetattr", errno);
         return;
     }
 
@@ -61,7 +61,7 @@ void set_blocking(int fd, int should_block)
     tty.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
 
     if (tcsetattr (fd, TCSANOW, &tty) != 0)
-        error_message ("error %d setting term attributes", errno);
+        fprintf(stderr, "error %d setting term attributes", errno);
 }
 
 
@@ -69,7 +69,8 @@ int main(int argc, char **argv)
 {
     printf("Hello\n");
 
-    char *portname = "/dev/ttyUSB1";
+    char *portname = "/dev/ttyUSB0";
+
     int fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
 
     if (fd < 0) {
@@ -78,14 +79,19 @@ int main(int argc, char **argv)
     }
 
     set_interface_attribs(fd, B9600, 0);  // set speed to 115,200 bps, 8n1 (no parity)
-    set_blocking (fd, 0);                // set no blocking
+    //set_blocking (fd, 0);                // set no blocking
 
-    char buf [100];
-    int n = read(fd, buf, sizeof buf);  // read up to 100 characters if ready to read
+    while (1) {
+        char buf[8];
+        int n = read(fd, buf, sizeof(buf));  // read up to 100 characters if ready to read
 
-    for (int i = 0; i < 100; i++) {
-        printf("%x ", buf[i]);
+        for (int i = 0; i <= n; i++) {
+            printf("%x ", buf[i]);
+        }
+
+        printf("\n");
     }
 
     return 0;
 }
+
