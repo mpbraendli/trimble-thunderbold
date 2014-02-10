@@ -1,3 +1,8 @@
+This program allows you to parse the output
+from a Trimble Thunderbolt GPSDO.
+
+It just prints status information on stdout.
+
 This parser code has been taken from
 
 http://www.ko4bb.com/dokuwiki/doku.php?id=precision_timing:gps_monitor

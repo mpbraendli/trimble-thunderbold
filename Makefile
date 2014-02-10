@@ -3,7 +3,7 @@ CC=clang
 CXX=clang++
 
 all:
-	$(CC) -Wall -o tsip *.c
+	$(CC) -Wall -ggdb -O0 -o tsip *.c
 
 clean:
 	rm *.o

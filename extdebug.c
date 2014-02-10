@@ -48,7 +48,7 @@
 
 //#define NUM_ALARMS		16		// alarm word is uint
 
-uchar ALARM_MSG[NUM_ALARMS][MSG_LEN] = {
+char ALARM_MSG[NUM_ALARMS][MSG_LEN] = {
     // Critical Alarms UINT16  	bit
     "ROM Checksum Err",			// 0
     "RAM Check Failed",			// 1
@@ -91,39 +91,38 @@ static uchar fault_query_ndx = 0;
  *   fault_query_index:  a static variable that points to the specific 
  *	bit being processed
  *----------------------------------------------------------------------*/
-int Fault_Msg_Query( uint Test_Result, uchar *buf,
-        uchar *msg ){
+int Fault_Msg_Query(int Test_Result, char *buf, char *msg) {
 
     uchar i;
     uint j=1;
 
-    if( Test_Result == 0 )
+    if (Test_Result == 0)
         return( FALSE );
     i = 0;
-    if( fault_query_ndx > 15 )
+    if (fault_query_ndx > 15)
         fault_query_ndx = 0;
-    while( !(Test_Result & j<<fault_query_ndx) ){
+    while (!(Test_Result & j<<fault_query_ndx)) {
         fault_query_ndx++;
-        if( fault_query_ndx >= NUM_MSG || i++ >= NUM_MSG ){
+        if (fault_query_ndx >= NUM_MSG || i++ >= NUM_MSG) {
             fault_query_ndx = 0;
-            return( FALSE );
+            return FALSE;
         }
         //if( i++ >= NUM_MSG )
         //    return( FALSE );
     }
-    if( *(msg+MSG_LEN*fault_query_ndx) == NULL_CHAR ){
+    if (*(msg+MSG_LEN*fault_query_ndx) == NULL_CHAR) {
         fault_query_ndx++;
         buf[0] = NULL_CHAR;
         return( FALSE );
     }
 
-    for( i=0; i<MSG_LEN; i++ ){
+    for (i=0; i<MSG_LEN; i++) {
         buf[i] = *(msg+MSG_LEN*fault_query_ndx+i);
-        if( buf[i] == NULL_CHAR )
+        if (buf[i] == NULL_CHAR)
             break;
     }
     fault_query_ndx++;
 
-    return( TRUE );
+    return TRUE;
 }
 

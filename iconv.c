@@ -99,9 +99,7 @@ uchar AsciiToUnsigned( uchar *p_ascii,
  *   terminated with a NULL char.
  *   Puts result directly into pbuf
  *----------------------------------------------------------------------*/
-void UnsignedToAscii( uint value, 
-        uchar *pbuf, 
-        uchar nbdigits ){
+void UnsignedToAscii(uint value, char *pbuf, char nbdigits) {
 
     char ndx;   // must be signed
     uint remainder, result;

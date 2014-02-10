@@ -4,6 +4,8 @@
 
 #include "general.h"
 
+void UnsignedToAscii(uint value, char *pbuf, char nbdigits);
+
 void ByteToAscii( uchar value, 
         uchar *pbuf, 
         uchar nbdigits, 
@@ -19,9 +21,6 @@ uchar AsciiToInt(
         int *p_int );
 uchar AsciiToUnsigned( uchar *p_ascii, 
         uint *p_int );
-void UnsignedToAscii( uint value, 
-        uchar *pbuf, 
-        uchar nbdigits );
 void LongToAscii( unsigned long value, 
         uchar *pbuf, 
         uchar nbdigits );

@@ -1,5 +1,6 @@
 #include "general.h"
 #include "extdebug.h"
+#include "iconv.h"
 
 #include "TSIP.h"
 
@@ -9,8 +10,9 @@
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdint.h>
 
-extern unsigned char ALARM_MSG[NUM_ALARMS][MSG_LEN];
+extern char ALARM_MSG[NUM_ALARMS][MSG_LEN];
 
 int set_interface_attribs(int fd, int speed, int parity)
 {
@@ -69,18 +71,14 @@ void set_blocking(int fd, int should_block)
         fprintf(stderr, "error %d setting term attributes", errno);
 }
 
-const unsigned int tz = 0;
-unsigned char gpsoffset;
+const int tz = 0;
+char gpsoffset;
 
-#define OFFSET_SELECT 0
-#define DST_SELECT 0
+void parse_primary_timing(uint8_t *RxBuf) {
 
-void parse_primary_timing(uchar *RxBuf) {
-
-    char sec, min, hr, dom, mo, y;
+    int sec, min, hr, dom, mo, y;
     UINTType yr;
-    //int utcoffset;
-    char ctz;
+    int ctz;
 
     ctz = tz;
 
@@ -104,118 +102,19 @@ void parse_primary_timing(uchar *RxBuf) {
 
     y = yr.u - 2000;
 
-    // if apply GPS offset...
-    if (OFFSET_SELECT == 0) {
-        // compute effect of GPS offset
-        sec -= gpsoffset;
-        if( sec < 0 ){
-            sec += 60;
-            min--;
-            if( min < 0 ){
-                min += 60;
-                hr--;
-                if( hr < 0 ){
-                    hr += 24;
-                    ctz--;
-                }
-            }
-        }
+    char mon[4];
+    memcpy(mon, Month+mo, 3);
+    mon[3] = 0;
 
-        // compute for time zone
-        if (ctz > 0) {
-            hr += ctz;
-            if (DST_SELECT == 0)
-                hr++;
-            if (hr > 23) {
-                hr -= 24;
-                dom++;
-                if ((uchar)dom > DIM[mo]) {
-                    // check for leap year ***TODO
-                    dom = 0;
-                    mo++;
-                    if( mo > 11 ){
-                        mo = 0;
-                        y++;
-                    }
-                }
-            }
-        }
-        if (ctz < 0) {
-            hr += ctz;
-            if (DST_SELECT == 0)
-                hr++;
-            if( hr < 0 ){
-                hr += 24;
-                dom--;
-                if( dom < 0 ){
-                    mo--;
-                    if( mo < 0 ){
-                        mo = 12;
-                        y--;
-                    }
-                    dom = DIM[mo];
-                    // check for leap year ***TODO
-                }
-            }
-        }
-    }
-
-    char lcdbuf[256];
-    memset(lcdbuf, 0, 256);
-
-    // display on LCD
-    UnsignedToAscii( (uint)sec, lcdbuf+6, 2 );
-    if (lcdbuf[6] == ' ') lcdbuf[6] = '0';
-    lcdbuf[8] = ' ';
-
-    UnsignedToAscii( (uint)min, lcdbuf+3, 2 );
-    if (lcdbuf[3] == ' ') lcdbuf[3] = '0';
-    lcdbuf[5] = ':';
-
-    UnsignedToAscii( (uint)hr, lcdbuf, 2 );
-    if (lcdbuf[0] == ' ') lcdbuf[0] = '0';
-    lcdbuf[2] = ':';
-
-    // Display day-of-month
-    UnsignedToAscii( (uint)dom, lcdbuf+9, 2 );
-    // DAK add leading zero to date 
-    if (lcdbuf[9] == ' ') lcdbuf[9] = '0';
-
-    // Display month
-    lcdbuf[11] = Month[mo];
-    lcdbuf[12] = Month[mo+1];
-    lcdbuf[13] = Month[mo+2];
-
-    // Display year
-    UnsignedToAscii( (uint)y, lcdbuf+14, 2 );
-    if( lcdbuf[14] == ' ' ) lcdbuf[14] = '0';
-    lcdbuf[16] = '\0';
-
-    if (OFFSET_SELECT == 1) {
-        lcdbuf[16] = ' ';
-        lcdbuf[17] = 'G';
-        lcdbuf[18] = 'P';
-        lcdbuf[19] = 'S';
-        lcdbuf[20] = '\0';
-    }
-    else {
-        lcdbuf[16] = ' ';
-        lcdbuf[17] = 'C';
-        if( DST_SELECT == 0 )
-            lcdbuf[18] = 'D';
-        else
-            lcdbuf[18] = 'S';
-        lcdbuf[19] = 'T';
-        lcdbuf[20] = '\0';
-    }
-
-    printf("%s\n", lcdbuf);
+    printf("%02d:%02d:%02d %02d %s %02d GPS\n",
+            hr, min, sec,
+            dom, mon, yr.u);
 
 }
 
 INTType Alarms;
 
-void parse_suppl_timing(unsigned char *RxBuf) {
+void parse_suppl_timing(uint8_t *RxBuf) {
     //#define TEST_EXTDEBUG
 
 #define NUM_DISPLAY_MODES		6
@@ -224,13 +123,14 @@ void parse_suppl_timing(unsigned char *RxBuf) {
     static int c = FALSE;
 
     FLOATType temp;
-    uchar val;
+    int val;
     uint fval;
     //char dac;
     //char tempbuf[17];
     static char mode = -1;
 
-    unsigned char lcdbuf[256];
+    char lcdbuf[256];
+    memset(lcdbuf, 0, 256);
 
 
 #ifdef TEST_EXTDEBUG
@@ -256,11 +156,11 @@ void parse_suppl_timing(unsigned char *RxBuf) {
         return;
 
     if( Alarms.u != 0 && mode == NUM_DISPLAY_MODES - 1 ){
-        b = Fault_Msg_Query( Alarms.u, lcdbuf, ALARM_MSG[0] );
+        b = Fault_Msg_Query(Alarms.u, lcdbuf, ALARM_MSG[0]);
         if( b )
             printf("%s\n", lcdbuf);
         if( RxBuf[9] != 0 ) // if critical alarm, keep showing it
-            return;        
+            return;
     }
 
     if( !b ){
@@ -271,19 +171,19 @@ void parse_suppl_timing(unsigned char *RxBuf) {
         fval = 10000;
         switch( mode ){
             case 0:	// disciplining mode
-                strcpy( lcdbuf , DiscMode[RxBuf[2]]);
+                strcpy(lcdbuf, DiscMode[(unsigned)RxBuf[2]]);
                 break;
 
             case 1:	// Discipling Activity
-                strcpy( lcdbuf , DiscActivity[RxBuf[13]]);
+                strcpy(lcdbuf, DiscActivity[(unsigned)RxBuf[13]]);
                 break;
 
             case 2:	// Receiver mode
-                strcpy( lcdbuf , RxMode[RxBuf[1]]);
+                strcpy(lcdbuf, RxMode[(unsigned)RxBuf[1]]);
                 break;
 
             case 3:	// GPS Decode Status
-                strcpy( lcdbuf , GPSDecodeStatus[RxBuf[12]]);
+                strcpy(lcdbuf, GPSDecodeStatus[(unsigned)RxBuf[12]]);
                 break;
 
             case 4:	// RxBuf[32-35] is temperature (float)
@@ -304,7 +204,7 @@ void parse_suppl_timing(unsigned char *RxBuf) {
                 //val = 249;
                 //fval = 209;
                 //
-                const unsigned char prompt[2][9]={
+                const char prompt[2][9]={
                     "TEMP:  ",
                     "DAC V: "
                 };
@@ -328,7 +228,7 @@ void parse_suppl_timing(unsigned char *RxBuf) {
 
 }
 
-void message_received(unsigned char* rx_buffer, int rx_count)
+void message_received(uint8_t* rx_buffer, int rx_count)
 {
     /*
     for (int i = 0; i <= rx_count; i++) {
@@ -357,14 +257,20 @@ void message_received(unsigned char* rx_buffer, int rx_count)
     }
 }
 
-static unsigned char rx_state;
+static int rx_state;
 static int bEvenDLE;
-static unsigned char rx_buffer[TXRX_BUF_LEN];
-static unsigned char rx_count;
+static uint8_t rx_buffer[TXRX_BUF_LEN];
+static int rx_count;
 
-void receiveloop(char tchar)
+void receiveloop(uint8_t tchar)
 {
-    switch( rx_state ){
+    if (rx_count >= TXRX_BUF_LEN) {
+        fprintf(stderr, "resetting state machine\n");
+        rx_state = WAIT_FOR_START;
+        rx_count = 0;
+    }
+
+    switch (rx_state) {
         case WAIT_FOR_START:
             // actually this waits for an end-of-message sequence
             // Phase Receiver with char-DLE-ETX
@@ -465,11 +371,11 @@ int main(int argc, char **argv)
     //set_blocking (fd, 0);                // set no blocking
 
     while (1) {
-        char buf[1];
-        int n = read(fd, buf, sizeof(buf));  // read up to 100 characters if ready to read
+        uint8_t buf;
+        int n = read(fd, &buf, 1);  // read up to 100 characters if ready to read
 
         if (n == 1) {
-            receiveloop(buf[0]);
+            receiveloop(buf);
         }
         else if (n > 1) {
             fprintf(stderr, "got %d\n", n);

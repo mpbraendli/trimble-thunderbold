@@ -3,15 +3,10 @@
 *---------------------------------------------------------------------*/
 
 #define NUM_ALARMS		16
-//#define MSG_LEN		10
 
 /*---------------------------------------------------------------------*
 * FUNCTION PROTOTYPES
 *----------------------------------------------------------------------*/
-int Fault_Msg_Query( 
-	uint Test_Result,
-	uchar *buf,
-	uchar *msg 
-);
+int Fault_Msg_Query(int Test_Result, char *buf, char *msg);
 
 
