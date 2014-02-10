@@ -1,5 +1,5 @@
 #include "general.h"
-#include "extdebug.h"
+#include "fault.h"
 
 #include "TSIP.h"
 
@@ -11,7 +11,28 @@
 #include <fcntl.h>
 #include <stdint.h>
 
-extern char ALARM_MSG[NUM_ALARMS][MSG_LEN];
+#define NUM_ALARMS		16
+
+char ALARM_MSG[NUM_ALARMS][MSG_LEN] = {
+    // Critical Alarms UINT16  	bit
+    "ROM Checksum Err",			// 0
+    "RAM Check Failed",			// 1
+    "PowerSupply Fail",			// 2
+    "FPGA Check Fail ",			// 3
+    "VCO at rail",				// 4
+    // Minor Alarms    UINT16  	bit
+    "VCO Near Rail",			// 0
+    "Antenna Open",				// 1
+    "Antenna Shorted",			// 2
+    "Not Tracking Sat",			// 3
+    "Not Disciplining",			// 4
+    "Survey In Progrs",			// 5
+    "No Stored Pos",			// 6
+    "Leap Sec Pending",			// 7
+    "Test Mode"					// 8
+        "",							// 9 undef
+    ""							// 10 undef
+};
 
 int set_interface_attribs(int fd, int speed, int parity)
 {
@@ -113,23 +134,14 @@ void parse_primary_timing(uint8_t *RxBuf) {
 
 INTType Alarms;
 
-void parse_suppl_timing(uint8_t *RxBuf) {
-    //#define TEST_EXTDEBUG
-
-#define NUM_DISPLAY_MODES		6
+void parse_suppl_timing(uint8_t *RxBuf)
+{
 
     static int b = FALSE;
 
     FLOATType temp;
     FLOATType dac;
     LONGType holdover_duration;
-
-#ifdef TEST_EXTDEBUG
-    if( Alarms.u == 0 )
-        Alarms.u = 1;
-    else
-        Alarms.u = Alarms.u<<1;
-#else
 
     // Critical alarms are lower 5 bits of byte 8-9 (so they are in Byte 9)
     // Minor alarms are lower 9 bits of byte 10-11 (lower bits are in byte 11)
@@ -140,7 +152,6 @@ void parse_suppl_timing(uint8_t *RxBuf) {
     Alarms.u = Alarms.u<<5;
     // OR with Critical Alarms
     Alarms.b.lo |= RxBuf[9];
-#endif
 
     if (Alarms.u != 0) {
         char buf[256];
