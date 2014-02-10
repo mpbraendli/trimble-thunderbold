@@ -8,10 +8,10 @@
 /*---------------------------------------------------------------------*
 * FUNCTION PROTOTYPES
 *----------------------------------------------------------------------*/
-bit Fault_Msg_Query( 
+int Fault_Msg_Query( 
 	uint Test_Result,
 	uchar *buf,
-	uchar code *msg 
+	uchar *msg 
 );
 
 

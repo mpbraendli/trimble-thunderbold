@@ -92,7 +92,7 @@ static uchar fault_query_ndx = 0;
  *	bit being processed
  *----------------------------------------------------------------------*/
 int Fault_Msg_Query( uint Test_Result, uchar *buf,
-        uchar code *msg ){
+        uchar *msg ){
 
     uchar i;
     uint j=1;
