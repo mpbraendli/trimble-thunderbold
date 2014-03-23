@@ -198,7 +198,7 @@ char Month[]          = "JanFebMarAprMayJunJulAugSepOctNovDec";
 // NUM_MODES is defined in TSIP.h
 // MSG_LEN  is defined in general.h
 
-uchar DIM[]  = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+uint8_t DIM[]  = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 char RxMode[8][MSG_LEN] = {
 	"RX: Auto 2D/3D",
@@ -261,8 +261,8 @@ union int_t {
 	int i;
 	unsigned int u;
 	struct {
-		uchar lo;
-		uchar hi;
+		uint8_t lo;
+		uint8_t hi;
 	}b;
 };
 
@@ -274,10 +274,10 @@ union long_t {
 	float f;
     uint32_t l;
 	struct {
-		uchar llo;
-		uchar lo;
-		uchar hi;
-		uchar hhi;
+		uint8_t llo;
+		uint8_t lo;
+		uint8_t hi;
+		uint8_t hhi;
 	}b;
 };
 

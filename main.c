@@ -4,6 +4,7 @@
 #include "TSIP.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <termios.h>
@@ -321,9 +322,19 @@ void receiveloop(uint8_t tchar)
 
 int main(int argc, char **argv)
 {
-    printf("Hello\n");
+    printf("tsip starting up.\n");
 
-    char *portname = "/dev/ttyUSB0";
+    char* portname = "/dev/ttyUSB0";
+
+    if (argc == 2) {
+        portname = argv[1];
+    }
+    else if (argc > 2) {
+        printf("Usage: %s [portname]\n", argv[0]);
+        exit(1);
+    }
+
+    printf("Using serial port %s, baudrate 9600\n", portname);
 
     int fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
 

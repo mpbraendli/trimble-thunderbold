@@ -1,7 +1,8 @@
 #include "general.h"
 #include "fault.h"
+#include <stdint.h>
 
-static uchar fault_query_ndx = 0;
+static uint8_t fault_query_ndx = 0;
 
 /*---------------------------------------------------------------------*
  * FUNCTION: Fault_Msg_Query()
@@ -15,8 +16,8 @@ static uchar fault_query_ndx = 0;
  *----------------------------------------------------------------------*/
 int Fault_Msg_Query(int Test_Result, char *buf, char *msg) {
 
-    uchar i;
-    uint j=1;
+    uint8_t i;
+    int j=1;
 
     if (Test_Result == 0)
         return FALSE;

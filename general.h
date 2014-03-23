@@ -46,12 +46,6 @@
 
 /* ----- end of user adjustable parameters ----- */
 
-/* ----- do not change those ----- */
-#define uint 				unsigned int
-#define uchar 				unsigned char
-#define cchar 				const char
-#define ByteType			unsigned char
-
 #define INT_DISABLE		(ET0 = FALSE)	// (EA = FALSE)
 #define INT_ENABLE		(ET0 = TRUE)	// (EA = TRUE)
 
