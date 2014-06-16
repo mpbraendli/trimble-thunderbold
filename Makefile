@@ -1,6 +1,6 @@
 
-CC=clang
-CXX=clang++
+CC=gcc
+CXX=g++
 
 all:
 	$(CC) -Wall -ggdb -O0 -o tsip *.c
